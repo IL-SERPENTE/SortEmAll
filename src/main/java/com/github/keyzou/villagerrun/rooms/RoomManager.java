@@ -1,5 +1,6 @@
 package com.github.keyzou.villagerrun.rooms;
 
+import com.github.keyzou.villagerrun.entities.VillagerPlayer;
 import net.samagames.api.games.Game;
 import org.bukkit.Location;
 
@@ -20,8 +21,15 @@ public class RoomManager {
         this.currentGame = game;
     }
 
-    public void createRoom(Location loc, Player attachedPlayer){
+    public void createRoom(Location loc, VillagerPlayer attachedPlayer) {
+        rooms.add(new Room(loc, attachedPlayer));
+    }
 
+    public void startGame(){
+        roomsPlaying.addAll(rooms);
+        for(Room r : roomsPlaying){
+            r.startGame();
+        }
     }
 
 }

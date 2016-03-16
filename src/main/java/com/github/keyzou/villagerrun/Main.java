@@ -1,5 +1,6 @@
 package com.github.keyzou.villagerrun;
 
+import com.github.keyzou.villagerrun.entities.VillagerPlayer;
 import com.github.keyzou.villagerrun.game.VillagerRun;
 import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.GamePlayer;
@@ -12,7 +13,7 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onEnable(){
-        VillagerRun game = new VillagerRun("id", "Villager Run!", "Sauvez les bons villageois !", GamePlayer.class);
+        VillagerRun game = new VillagerRun("id", "Villager Run", "Sauvez les bons villageois !", VillagerPlayer.class);
         SamaGamesAPI.get().getGameManager().registerGame(game);
     }
 }
