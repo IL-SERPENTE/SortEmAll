@@ -1,12 +1,12 @@
 package com.github.keyzou.villagerrun.game;
 
 import com.github.keyzou.villagerrun.Main;
-import com.github.keyzou.villagerrun.entities.VillagerPlayer;
 import com.github.keyzou.villagerrun.rooms.RoomManager;
 import com.github.keyzou.villagerrun.tasks.GameTask;
 import com.github.keyzou.villagerrun.tasks.SpawnTask;
 import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.Game;
+import net.samagames.api.games.GamePlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class VillagerRun extends Game<VillagerPlayer> {
+public class VillagerRun extends Game<GamePlayer> {
 
     private RoomManager roomManager;
     private List<UUID> players = new ArrayList<>();
@@ -26,9 +26,15 @@ public class VillagerRun extends Game<VillagerPlayer> {
 
     private long spawnFrequency = 40L;
 
+    private int verifTaskID;
+
     private Main plugin;
 
-    public VillagerRun(String gameCodeName, String gameName, String gameDescription, Class<VillagerPlayer> gamePlayerClass, Main plugin) {
+    private GamePlayer winner;
+
+    private boolean end;
+
+    public VillagerRun(String gameCodeName, String gameName, String gameDescription, Class<GamePlayer> gamePlayerClass, Main plugin) {
         super(gameCodeName, gameName, gameDescription, gamePlayerClass);
         roomManager = new RoomManager(this);
         this.plugin = plugin;
@@ -48,10 +54,14 @@ public class VillagerRun extends Game<VillagerPlayer> {
         SpawnTask spawnTask = new SpawnTask(this);
         spawnTask.runTaskLater(this.plugin, spawnFrequency);
         // Task spawn variable
+        verifTaskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> roomManager.checkRoomsPNJ(), 0L, 3L);
     }
 
     public void endGame(){
-        this.endGame();
+        this.end = true;
+        this.roomManager.clearRooms();
+        SamaGamesAPI.get().getGameManager().getCoherenceMachine().getTemplateManager().getPlayerWinTemplate().execute(winner.getPlayerIfOnline());
+        this.handleGameEnd();
     }
 
     @Override
@@ -90,5 +100,17 @@ public class VillagerRun extends Game<VillagerPlayer> {
 
     public Main getPlugin(){
         return plugin;
+    }
+
+    public int getVerifTaskID(){
+        return verifTaskID;
+    }
+
+    public void setWinner(GamePlayer player){
+        winner = player;
+    }
+
+    public boolean mustEnd(){
+        return end;
     }
 }

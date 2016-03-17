@@ -18,6 +18,11 @@ public class SpawnTask extends BukkitRunnable {
 
     @Override
     public void run() {
+        if(game.mustEnd()){
+            this.cancel();
+            return;
+        }
+
         int spawnID = random.nextInt(game.getVillagersPerRoom());
         game.getRoomManager().spawnNPC(spawnID, random.nextBoolean());
         SpawnTask nextTask = new SpawnTask(game);

@@ -1,6 +1,7 @@
 package com.github.keyzou.villagerrun.tasks;
 
 import com.github.keyzou.villagerrun.game.VillagerRun;
+import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class GameTask extends BukkitRunnable {
@@ -13,10 +14,17 @@ public class GameTask extends BukkitRunnable {
 
     @Override
     public void run() {
+        if(game.mustEnd()){
+            Bukkit.getScheduler().cancelTask(game.getVerifTaskID());
+            this.cancel();
+            return;
+        }
+
         game.getRoomManager().checkErrors();
         game.getRoomManager().cleanRooms();
 
-        if(game.getRoomManager().getRoomsPlayingCount() <= 0){
+        if(game.getRoomManager().getRoomsPlayingCount() <= 1 && !game.mustEnd()){
+            game.setWinner(game.getRoomManager().getRoomPlayer(0));
             game.endGame();
         }
     }

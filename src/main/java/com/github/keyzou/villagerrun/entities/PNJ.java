@@ -1,14 +1,17 @@
 package com.github.keyzou.villagerrun.entities;
 
 import com.github.keyzou.villagerrun.entities.ai.PathfinderGoalWalk;
+import com.google.common.collect.Sets;
 import net.minecraft.server.v1_9_R1.EntityVillager;
 import net.minecraft.server.v1_9_R1.PathfinderGoalSelector;
 import net.minecraft.server.v1_9_R1.World;
+import net.samagames.tools.Reflection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_9_R1.util.UnsafeList;
 
 import java.lang.reflect.Field;
+import java.util.Set;
 import java.util.logging.Level;
 
 public class PNJ extends EntityVillager {
@@ -33,16 +36,16 @@ public class PNJ extends EntityVillager {
         Par la suite on utilise la reflection pour récupérer l'AI du PNJ et la redéfinir.
          */
         try {
-            Field bField = PathfinderGoalSelector.class.getDeclaredField("b");
+            Field bField = Reflection.getField(PathfinderGoalSelector.class, "b");
             bField.setAccessible(true);
-            Field cField = PathfinderGoalSelector.class.getDeclaredField("c");
+            Field cField = Reflection.getField(PathfinderGoalSelector.class, "c");
             cField.setAccessible(true);
-            bField.set(goalSelector, new UnsafeList<PathfinderGoalSelector>());
-            bField.set(targetSelector, new UnsafeList<PathfinderGoalSelector>());
-            cField.set(goalSelector, new UnsafeList<PathfinderGoalSelector>());
-            cField.set(targetSelector, new UnsafeList<PathfinderGoalSelector>());
+            bField.set(goalSelector, Sets.newLinkedHashSet());
+            bField.set(targetSelector, Sets.newLinkedHashSet());
+            cField.set(goalSelector, Sets.newLinkedHashSet());
+            cField.set(targetSelector, Sets.newLinkedHashSet());
         } catch (Exception e) {
-            Bukkit.getLogger().log(Level.SEVERE, "Erreur mdr", e);
+            Bukkit.getLogger().log(Level.SEVERE, "Erreur Reflection PNJ", e);
         }
         this.setProfession(good ? 1 : 2); // 1 = vêtement blanc / 2 = vêtement violet
         this.goalSelector.a(0, new PathfinderGoalWalk(this, objective)); // On rend notre PNJ intelligent
@@ -79,4 +82,6 @@ public class PNJ extends EntityVillager {
     public void addLife(int life) {
         this.life += life;
     }
+
+
 }

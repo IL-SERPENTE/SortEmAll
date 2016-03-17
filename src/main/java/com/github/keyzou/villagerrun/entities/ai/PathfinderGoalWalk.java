@@ -1,8 +1,12 @@
 package com.github.keyzou.villagerrun.entities.ai;
 
 import com.github.keyzou.villagerrun.entities.PNJ;
-import net.minecraft.server.v1_9_R1.PathfinderGoal;
+import net.minecraft.server.v1_9_R1.*;
+import net.samagames.tools.Reflection;
 import org.bukkit.Location;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public class PathfinderGoalWalk extends PathfinderGoal {
     /**
@@ -33,7 +37,11 @@ public class PathfinderGoalWalk extends PathfinderGoal {
      */
     @Override
     public void c(){
-        this.pnj.getNavigation().a(objective.getBlockX(), objective.getBlockY(), objective.getBlockZ(), 0.5f );
+//        PathPoint pnjPoint = new PathPoint((int)pnj.locX, (int)pnj.locY, (int)pnj.locZ);
+//        PathPoint objPoint = new PathPoint((int)objective.getX(),(int) objective.getY(),(int) objective.getZ());
+//        PathEntity pe = new PathEntity(new PathPoint[]{pnjPoint, objPoint});
+//        this.pnj.getNavigation().a(pe, 0.5f);
+        this.pnj.getNavigation().a(objective.getBlockX()+0.5, objective.getBlockY(), objective.getBlockZ()+0.5, 0.5f );
     }
 
     /**
@@ -51,6 +59,8 @@ public class PathfinderGoalWalk extends PathfinderGoal {
     @Override
     public void e(){
         pnj.addLife(1);
+        pnj.motZ = 0;
+        pnj.motY = 0;
     }
 
 
