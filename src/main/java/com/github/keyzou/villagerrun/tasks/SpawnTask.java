@@ -2,6 +2,7 @@ package com.github.keyzou.villagerrun.tasks;
 
 import com.github.keyzou.villagerrun.game.VillagerRun;
 import org.bukkit.scheduler.BukkitRunnable;
+
 import java.util.Random;
 
 
@@ -23,7 +24,7 @@ public class SpawnTask extends BukkitRunnable {
             return;
         }
 
-        int spawnID = random.nextInt(game.getVillagersPerRoom());
+        int spawnID = random.nextInt(game.getRoomManager().getVillagerSpawnCount());
         game.getRoomManager().spawnNPC(spawnID, random.nextBoolean());
         SpawnTask nextTask = new SpawnTask(game);
         nextTask.runTaskLater(game.getPlugin(), game.getSpawnFrequency());

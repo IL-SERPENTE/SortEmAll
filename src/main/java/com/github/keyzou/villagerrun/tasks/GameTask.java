@@ -27,9 +27,10 @@ public class GameTask extends BukkitRunnable {
             game.reduceSpawnFrequency();
             GameUtils.broadcastMessage(ChatColor.GOLD+"On accélère la cadence !");
         }
+
+        game.getRoomManager().updateRooms();
         game.getRoomManager().checkErrors();
         game.getRoomManager().cleanRooms();
-        game.getRoomManager().updateRooms();
 
         if(game.getRoomManager().getRoomsPlayingCount() <= 0 && !game.mustEnd()){
             game.setWinner(game.getRoomManager().getRoomPlayer(0));

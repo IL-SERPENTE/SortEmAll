@@ -1,7 +1,6 @@
 package com.github.keyzou.villagerrun.rooms;
 
 import com.github.keyzou.villagerrun.entities.PNJ;
-import com.github.keyzou.villagerrun.game.VillagerRun;
 import net.minecraft.server.v1_9_R1.BlockPosition;
 import net.minecraft.server.v1_9_R1.Entity;
 import net.minecraft.server.v1_9_R1.World;
@@ -19,25 +18,34 @@ import java.util.List;
 
 public class RoomManager {
 
+    /**
+     * Array that contains every {@link Room} (playing and not playing)
+     */
     private List<Room> rooms = new ArrayList<>();
+    /**
+     * Array that contains every playing {@link Room}
+     */
     private List<Room> roomsPlaying = new ArrayList<>();
+    /**
+     * Array that contains every {@link Room} which will lose next tick
+     */
     private List<Room> roomsRemove = new ArrayList<>();
 
-    protected VillagerRun currentGame;
-
-    public RoomManager(VillagerRun game){
-        this.currentGame = game;
-    }
-
-    public void createRoom(Location loc, GamePlayer attachedPlayer) {
-        rooms.add(new Room(loc, attachedPlayer));
-    }
+    /**
+     * First {@link Room}, serves as template for the next ones
+     */
+    private Room firstRoom;
 
     public void startGame(){
         roomsPlaying.addAll(rooms);
-        roomsPlaying.forEach(room -> room.startGame(this));
+        roomsPlaying.forEach(Room::startGame);
     }
 
+    /**
+     * Spawns an either good or bad {@link PNJ} at a specified spawn
+     * @param spawnerID Location where it'll be spawned
+     * @param isGood
+     */
     public void spawnNPC(int spawnerID, boolean isGood){
         roomsPlaying.forEach(room -> {
             Location loc = room.villagerSpawnPoints.get(spawnerID);
@@ -53,6 +61,9 @@ public class RoomManager {
         roomsPlaying.forEach(room -> {if(room.errors > 2) roomsRemove.add(room);});
     }
 
+    /**
+     * Called every ticks, removes the {@link PNJ} that must be removed, and every room that must lose, loses.
+     */
     public void cleanRooms(){
         roomsPlaying.forEach(roomPlaying -> roomPlaying.pnjList.removeAll(roomPlaying.pnjToRemove));
         roomsRemove.forEach(room -> {
@@ -70,6 +81,9 @@ public class RoomManager {
     }
 
 
+    /**
+     * Check every PNJ and check its position if it's not moving anymore (stopped in front of the door / on the objective)
+     */
     public void checkRoomsPNJ() {
         roomsPlaying.forEach(room -> room.pnjList.stream().filter(pnj -> !room.pnjToRemove.contains(pnj)).forEach(pnj->{
                 if ((pnj.motX == 0) && (pnj.motZ == 0) && (pnj.getLife() > 10)) {
@@ -90,18 +104,26 @@ public class RoomManager {
         }));
     }
 
+    /**
+     * Compares the pnj pos and the objective pos
+     * @param pnjPos
+     * @param objPos
+     * @param room
+     * @param pnj
+     * @return true if the player did good, else false
+     */
     private boolean compare(BlockPosition pnjPos, BlockPosition objPos, Room room, PNJ pnj){
-        if (pnjPos.equals(objPos)) { // Si il a atteint sa destination on marque un point..
-            if (pnj.isGood()) { // Seulement si c'est un blanc
+        if (pnjPos.equals(objPos)) { // If it reached its destination
+            if (pnj.isGood()) { // If he's white then we score a point
                 room.score++;
                 return true;
             }
             else {
-                room.errors++; // Sinon c'est une erreur
+                room.errors++; // Else we score an error
                 return false;
             }
-        } else { // S'il a pas atteint sa destination..
-            if (pnj.isGood()) { // mais que c'est un blanc on lui retire un point
+        } else { // If it didnt reach its destination
+            if (pnj.isGood()) { // but he's white we score an error
                 room.errors++;
                 return false;
             }else
@@ -113,6 +135,9 @@ public class RoomManager {
         return roomsPlaying.get(roomID).getRoomPlayer();
     }
 
+    /**
+     * Clears all the rooms (kills ALL the PNJs)
+     */
     public void clearRooms(){
         roomsPlaying.forEach(room -> {
             room.pnjList.forEach(Entity::die);
@@ -124,5 +149,37 @@ public class RoomManager {
 
     public void updateRooms() {
         roomsPlaying.forEach(Room::updateRoom);
+    }
+
+    /**
+     * Create the first room that serves as template to every next room
+     * @param playerSpawn
+     * @param originList
+     * @param destinationList
+     */
+    public void createFirstRoom(Location playerSpawn, List<Location> originList, List<Location> destinationList) {
+        firstRoom = new Room(playerSpawn, originList, destinationList);
+        rooms.add(firstRoom);
+    }
+
+    /**
+     * Creates a new room and move it by "zOffset" blocks
+     * @param zOffset
+     */
+    public void duplicateRoom(int zOffset){
+        rooms.add(firstRoom.duplicate(zOffset));
+    }
+
+    /**
+     * Attach a player to a room
+     * @param roomID
+     * @param player
+     */
+    public void dispatchPlayer(int roomID, GamePlayer player){
+        rooms.get(roomID).attachPlayer(player);
+    }
+
+    public int getVillagerSpawnCount(){
+        return firstRoom.villagerSpawnPoints.size();
     }
 }

@@ -8,23 +8,21 @@ import net.minecraft.server.v1_9_R1.World;
 import net.samagames.tools.Reflection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_9_R1.util.UnsafeList;
 
 import java.lang.reflect.Field;
-import java.util.Set;
 import java.util.logging.Level;
 
 public class PNJ extends EntityVillager {
     /**
-     * La destination du PNJ
+     * PNJ's destination
      */
     private Location objective;
     /**
-     * Pour savoir si c'est un bon ou un mauvais PNJ
+     * If it's either a good or bad PNJ
      */
     private boolean good;
     /**
-     * Nombre de ticks pendant lequel le PNJ a vécu
+     * How many ticks did the PNJ live
      */
     private int life;
 
@@ -52,32 +50,24 @@ public class PNJ extends EntityVillager {
     }
 
     /**
-     * Permet de récupérer la destination du PNJ
-     * @return la destination du pnj
+     * Get the PNJ's destination
+     * @return PNJ's destination
      */
     public Location getObjective() {
         return objective;
     }
 
-    /**
-     * Permet de récupérer le nombre de ticks durant lequel le PNJ a vécu
-     * @return la "vie" du pnj
-     */
     public int getLife() {
         return life;
     }
 
-    /**
-     * Permet de savoir si un pnj est bon ou mauvais
-     * @return true si bon sinon false
-     */
     public boolean isGood() {
         return good;
     }
 
     /**
-     * Ajoute de la "vie" au PNJ (s'incrémente de 1 à chaque tick)
-     * @param life la vie à ajouter
+     * Adds "life" to the PNJ (increments by one each tick)
+     * @param life
      */
     public void addLife(int life) {
         this.life += life;

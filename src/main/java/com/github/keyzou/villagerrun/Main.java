@@ -25,8 +25,13 @@ public class Main extends JavaPlugin {
         registerEntity("CustomVillager", 120, PNJ.class);
     }
 
-    public void registerEntity(String name, int id, Class<? extends EntityInsentient> customClass){
-
+    /**
+     * Using reflection to add a custom entity to Minecraft's entity list
+     * @param name Name of the Entity
+     * @param id id of the entity (120 is EntityVillager)
+     * @param customClass {@link PNJ} class
+     */
+    private void registerEntity(String name, int id, Class<? extends EntityInsentient> customClass){
         try {
             List<Map<?, ?>> dataMap = new ArrayList<>();
             for (Field f : EntityTypes.class.getDeclaredFields()){

@@ -19,37 +19,45 @@ import java.util.List;
 import java.util.logging.Level;
 
 
-public class Room {
+class Room {
 
     private GamePlayer attachedPlayer;
+    /**
+     * Player spawn point
+     */
     private Location spawnPoint;
 
-    protected List<Location> villagerSpawnPoints = new ArrayList<>();
-    protected List<Location> fencesLocations = new ArrayList<>();
+    /**
+     * Where villagers spawn
+     */
+    List<Location> villagerSpawnPoints = new ArrayList<>();
+    /**
+     * Where villagers must go
+     */
+    List<Location> fencesLocations = new ArrayList<>();
 
-    protected List<PNJ> pnjList = new ArrayList<>();
-    protected List<PNJ> pnjToRemove = new ArrayList<>();
+    List<PNJ> pnjList = new ArrayList<>();
+    /**
+     * All the {@link PNJ}s which will be removed next tick
+     */
+    List<PNJ> pnjToRemove = new ArrayList<>();
 
-    protected int score;
-    protected int errors;
+    int score = 0;
+    int errors = 0;
 
-    protected ObjectiveSign scoreBoard;
+    private ObjectiveSign scoreBoard;
 
-    protected Room(Location loc, GamePlayer player){
-        attachedPlayer = player;
+    Room(Location loc, List<Location> villagerSpawnPoints, List<Location> destinationPoints){
         spawnPoint = loc;
+        this.villagerSpawnPoints = villagerSpawnPoints;
+        this.fencesLocations = destinationPoints;
     }
 
-    protected GamePlayer getRoomPlayer(){
-        return attachedPlayer;
-    }
-
-    protected void startGame(RoomManager roomManager){
+    /**
+     * Generates the room and the scoreboard
+     */
+    void startGame(){
         generateRoom();
-        for(int i = 0; i < roomManager.currentGame.getVillagersPerRoom(); i++){
-            villagerSpawnPoints.add(new Location(spawnPoint.getWorld(), spawnPoint.getBlockX()+8, spawnPoint.getBlockY(), spawnPoint.getBlockZ() -1.5 + i));
-            fencesLocations.add(new Location(spawnPoint.getWorld(), spawnPoint.getBlockX()+3.5, spawnPoint.getBlockY(), spawnPoint.getBlockZ() -2 + i + 0.5));
-        }
         scoreBoard = new ObjectiveSign("villagerRun", ChatColor.AQUA+""+ChatColor.BOLD+"     Villager Run     ");
         scoreBoard.addReceiver(attachedPlayer.getPlayerIfOnline());
         scoreBoard.setLocation(VObjective.ObjectiveLocation.SIDEBAR);
@@ -59,6 +67,9 @@ public class Room {
         attachedPlayer.getPlayerIfOnline().teleport(spawnPoint);
     }
 
+    /**
+     * Loads and paste the {@link WorldEdit} schematic at the player spawn location
+     */
     private void generateRoom(){
         org.bukkit.World world = Bukkit.getWorld("world");
         EditSessionFactory esf = WorldEdit.getInstance().getEditSessionFactory();
@@ -72,7 +83,10 @@ public class Room {
         }
     }
 
-    protected void lose(){
+    /**
+     * Called when a player loses, clears the room and set the player as spectator
+     */
+    void lose(){
         // clear pnj list
         pnjList.forEach(this::removePNJ);
         // Add to Waiting List
@@ -83,22 +97,52 @@ public class Room {
         score = 0;
     }
 
-    protected void addPNJ(PNJ pnj){
+    void addPNJ(PNJ pnj){
         pnjList.add(pnj);
     }
-    protected void removePNJ(PNJ pnj){
+    void removePNJ(PNJ pnj){
         pnjToRemove.add(pnj);
         pnj.die();
     }
 
-    protected void updateRoom(){
+    /**
+     * Updates the scoreboard
+     */
+    void updateRoom(){
         scoreBoard.setLine(2, String.valueOf(score));
-        StringBuilder sb = new StringBuilder();
+        StringBuilder errorsSB = new StringBuilder();
         for(int i = 0; i < errors; i++){
-            sb.append("✖");
+            errorsSB.append("\u2716");
         }
-        scoreBoard.setLine(5, ChatColor.RED+sb.toString());
+        StringBuilder errorsLeftSB = new StringBuilder();
+        for(int i = errors; i < 3; i++){
+            errorsLeftSB.append("\u25EF");
+        }
+        scoreBoard.setLine(5, ChatColor.RED+errorsSB.toString()+ChatColor.BOLD+ChatColor.GREEN+errorsLeftSB.toString());
         scoreBoard.updateLines();
+    }
+
+    GamePlayer getRoomPlayer(){
+        return attachedPlayer;
+    }
+    void attachPlayer(GamePlayer player){
+        attachedPlayer = player;
+    }
+
+    /**
+     * Create a new room and moves it by zOffset blocks
+     * @param zOffset gap between the current room and the new one
+     * @return the new {@link Room}
+     */
+    Room duplicate(int zOffset){
+        List<Location> newOriginList = new ArrayList<>();
+        List<Location> newDestinationList = new ArrayList<>();
+        newOriginList.addAll(villagerSpawnPoints);
+        newDestinationList.addAll(fencesLocations);
+        newOriginList.forEach(location -> location.add(0,0, zOffset));
+        newDestinationList.forEach(location -> location.add(0,0, zOffset));
+        Location newSpawn = new Location(spawnPoint.getWorld(), spawnPoint.getX(), spawnPoint.getY(), spawnPoint.getZ()+zOffset);
+        return new Room(newSpawn, newOriginList, newDestinationList);
     }
 
 }
