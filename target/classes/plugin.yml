@@ -1,5 +1,5 @@
-name: SortEmAll
-description: Plugin effectue par Keyzou pour le test de SamaGames
+name: VillagerRun
+description: Sauvez tous les villageois !
 main: com.github.keyzou.villagerrun.Main
 version: 1.1
 depend: [SamaGamesAPI, WorldEdit]

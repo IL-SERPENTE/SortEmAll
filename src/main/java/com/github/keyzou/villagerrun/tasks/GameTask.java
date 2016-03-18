@@ -23,7 +23,7 @@ public class GameTask extends BukkitRunnable {
         }
 
         game.incrementSecondsElapsed();
-        if(game.getSecondsElapsed() % 30 == 0){
+        if(game.getSecondsElapsed() % 30 == 0 && game.getSpawnFrequency() > 20){
             game.reduceSpawnFrequency();
             GameUtils.broadcastMessage(ChatColor.GOLD+"On accélère la cadence !");
         }
@@ -32,7 +32,7 @@ public class GameTask extends BukkitRunnable {
         game.getRoomManager().checkErrors();
         game.getRoomManager().cleanRooms();
 
-        if(game.getRoomManager().getRoomsPlayingCount() <= 0 && !game.mustEnd()){
+        if(game.getRoomManager().getRoomsPlayingCount() <= 1 && !game.mustEnd()){
             game.setWinner(game.getRoomManager().getRoomPlayer(0));
             game.endGame();
         }
