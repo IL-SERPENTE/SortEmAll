@@ -1,6 +1,8 @@
 package com.github.keyzou.villagerrun.tasks;
 
 import com.github.keyzou.villagerrun.game.VillagerRun;
+import net.md_5.bungee.api.ChatColor;
+import net.samagames.tools.GameUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -20,6 +22,11 @@ public class GameTask extends BukkitRunnable {
             return;
         }
 
+        game.incrementSecondsElapsed();
+        if(game.getSecondsElapsed() % 30 == 0){
+            game.reduceSpawnFrequency();
+            GameUtils.broadcastMessage(ChatColor.GOLD+"On accélère la cadence !");
+        }
         game.getRoomManager().checkErrors();
         game.getRoomManager().cleanRooms();
         game.getRoomManager().updateRooms();

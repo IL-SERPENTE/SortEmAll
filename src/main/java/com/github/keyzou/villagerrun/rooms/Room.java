@@ -6,7 +6,6 @@ import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.data.DataException;
 import com.sk89q.worldedit.schematic.MCEditSchematicFormat;
 import net.samagames.api.games.GamePlayer;
-import net.samagames.tools.chat.ChatUtils;
 import net.samagames.tools.scoreboards.ObjectiveSign;
 import net.samagames.tools.scoreboards.VObjective;
 import org.bukkit.Bukkit;
@@ -77,7 +76,7 @@ public class Room {
         // clear pnj list
         pnjList.forEach(this::removePNJ);
         // Add to Waiting List
-
+        attachedPlayer.setSpectator();
         attachedPlayer = null;
         // Reset scores
         errors = 0;

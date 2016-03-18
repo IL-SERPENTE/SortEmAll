@@ -20,13 +20,14 @@ public class VillagerRun extends Game<GamePlayer> {
     private RoomManager roomManager;
     private List<UUID> players = new ArrayList<>();
 
-    private int roomXSize;
     private int roomZSize;
     private int villagersPerRoom;
+    private int pathLength;
 
     private long spawnFrequency = 40L;
 
     private int verifTaskID;
+    private int secondsElapsed;
 
     private Main plugin;
 
@@ -61,6 +62,8 @@ public class VillagerRun extends Game<GamePlayer> {
         this.end = true;
         this.roomManager.clearRooms();
         SamaGamesAPI.get().getGameManager().getCoherenceMachine().getTemplateManager().getPlayerWinTemplate().execute(winner.getPlayerIfOnline());
+        winner.addCoins(25, "Partie gagnée");
+        winner.addStars(3, "Partie gagnée");
         this.handleGameEnd();
     }
 
@@ -73,21 +76,17 @@ public class VillagerRun extends Game<GamePlayer> {
     @Override
     public void handlePostRegistration(){
         super.handlePostRegistration();
-        roomXSize = SamaGamesAPI.get().getGameManager().getGameProperties().getOptions().get("width").getAsInt();
-        roomZSize = SamaGamesAPI.get().getGameManager().getGameProperties().getOptions().get("height").getAsInt();
+        roomZSize = SamaGamesAPI.get().getGameManager().getGameProperties().getOptions().get("roomZSize").getAsInt();
         villagersPerRoom = SamaGamesAPI.get().getGameManager().getGameProperties().getOptions().get("spawnPerRoom").getAsInt();
-    }
-
-    public int getRoomXSize(){
-        return roomXSize;
-    }
-
-    public int getRoomZSize(){
-        return roomZSize;
+        pathLength = SamaGamesAPI.get().getGameManager().getGameProperties().getOptions().get("pathLength").getAsInt();
     }
 
     public int getVillagersPerRoom(){
         return villagersPerRoom;
+    }
+
+    public int getPathLength(){
+        return pathLength;
     }
 
     public long getSpawnFrequency(){
@@ -112,5 +111,19 @@ public class VillagerRun extends Game<GamePlayer> {
 
     public boolean mustEnd(){
         return end;
+    }
+
+    public int getSecondsElapsed() {
+        return secondsElapsed;
+    }
+
+    public void incrementSecondsElapsed() {
+        this.secondsElapsed++;
+    }
+
+    public void reduceSpawnFrequency(){
+        spawnFrequency -= spawnFrequency <= 30 ? 5 : 10;
+        if(spawnFrequency < 20)
+            spawnFrequency = 20;
     }
 }
