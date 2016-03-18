@@ -22,8 +22,9 @@ public class GameTask extends BukkitRunnable {
 
         game.getRoomManager().checkErrors();
         game.getRoomManager().cleanRooms();
+        game.getRoomManager().updateRooms();
 
-        if(game.getRoomManager().getRoomsPlayingCount() <= 1 && !game.mustEnd()){
+        if(game.getRoomManager().getRoomsPlayingCount() <= 0 && !game.mustEnd()){
             game.setWinner(game.getRoomManager().getRoomPlayer(0));
             game.endGame();
         }
