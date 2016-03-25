@@ -51,7 +51,7 @@ public class RoomManager {
             Location loc = room.villagerSpawnPoints.get(spawnerID);
             World mcWorld = ((CraftWorld) loc.getWorld()).getHandle();
             PNJ pnj = new PNJ(mcWorld, room.fencesLocations.get(spawnerID), isGood);
-            pnj.setLocation(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getYaw(), loc.getPitch());
+            pnj.setLocation(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), 90, 0);
             mcWorld.addEntity(pnj);
             room.addPNJ(pnj);
         });
@@ -90,14 +90,18 @@ public class RoomManager {
                     Location pnjLoc = new Location(Bukkit.getServer().getWorld("world"), pnj.locX, pnj.locY, pnj.locZ);
                     BlockPosition pnjPos = new BlockPosition(pnj.locX, pnj.locY, pnj.locZ);
                     BlockPosition objPos = new BlockPosition(pnj.getObjective().getBlockX() + 0.5, pnj.getObjective().getBlockY(), pnj.getObjective().getBlockZ() + 0.5);
-                    if(compare(pnjPos, objPos, room, pnj)) {
+                    if(compare(pnjPos, objPos, room, pnj) == 1) {
                         ParticleEffect.HEART.display(0.3f, 1, 0.3f, 1, 5, pnjLoc, 5);
                         room.getRoomPlayer().getPlayerIfOnline().playSound(pnjLoc, Sound.BLOCK_NOTE_HARP, 1, 1.5f);
                         room.getRoomPlayer().getPlayerIfOnline().playSound(pnjLoc, Sound.BLOCK_NOTE_HARP, 1, 1.7f);
-                    }else {
+                    }else if(compare(pnjPos, objPos, room, pnj) == 0) {
                         ParticleEffect.CLOUD.display(0.3f, 0.3f, 0.3f, 0.2f, 10, new Location(Bukkit.getServer().getWorld("world"), pnj.locX, pnj.locY, pnj.locZ), 5);
                         room.getRoomPlayer().getPlayerIfOnline().playSound(pnjLoc, Sound.BLOCK_NOTE_BASS, 1, 0.7f);
                         room.getRoomPlayer().getPlayerIfOnline().playSound(pnjLoc, Sound.BLOCK_NOTE_BASS, 1, 0.2f);
+                    } else{
+                        ParticleEffect.FLAME.display(0.3f, 1, 0.3f, 1, 5, pnjLoc, 5);
+                        room.getRoomPlayer().getPlayerIfOnline().playSound(pnjLoc, Sound.BLOCK_NOTE_SNARE, 1, 0.7f);
+                        room.getRoomPlayer().getPlayerIfOnline().playSound(pnjLoc, Sound.BLOCK_NOTE_SNARE, 1, 0.2f);
                     }
                     room.removePNJ(pnj);
                 }
@@ -112,22 +116,22 @@ public class RoomManager {
      * @param pnj
      * @return true if the player did good, else false
      */
-    private boolean compare(BlockPosition pnjPos, BlockPosition objPos, Room room, PNJ pnj){
+    private int compare(BlockPosition pnjPos, BlockPosition objPos, Room room, PNJ pnj){
         if (pnjPos.equals(objPos)) { // If it reached its destination
             if (pnj.isGood()) { // If he's white then we score a point
                 room.score++;
-                return true;
+                return 1;
             }
             else {
                 room.errors++; // Else we score an error
-                return false;
+                return -1;
             }
         } else { // If it didnt reach its destination
             if (pnj.isGood()) { // but he's white we score an error
                 room.errors++;
-                return false;
+                return 0;
             }else
-                return false;
+                return 0;
         }
     }
 

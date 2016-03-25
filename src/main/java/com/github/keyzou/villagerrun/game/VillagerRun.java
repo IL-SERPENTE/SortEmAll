@@ -106,6 +106,9 @@ public class VillagerRun extends Game<GamePlayer> {
         spawnTask.runTaskLater(this.plugin, spawnFrequency);
         // Task spawn variable
         verifTaskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> roomManager.checkRoomsPNJ(), 0L, 3L);
+
+        this.getPlugin().getServer().getWorld("world").setPVP(true);
+
     }
 
     /**
@@ -145,6 +148,8 @@ public class VillagerRun extends Game<GamePlayer> {
             destinationList.add(LocationUtils.str2loc(entry.get("destination").getAsString()));
         });
         roomManager.createFirstRoom(playerSpawn, originList, destinationList);
+        this.getPlugin().getServer().getWorld("world").setPVP(false);
+
     }
 
     public long getSpawnFrequency(){

@@ -137,10 +137,8 @@ class Room {
     Room duplicate(int zOffset){
         List<Location> newOriginList = new ArrayList<>();
         List<Location> newDestinationList = new ArrayList<>();
-        newOriginList.addAll(villagerSpawnPoints);
-        newDestinationList.addAll(fencesLocations);
-        newOriginList.forEach(location -> location.add(0,0, zOffset));
-        newDestinationList.forEach(location -> location.add(0,0, zOffset));
+        villagerSpawnPoints.forEach(location -> newOriginList.add(new Location(location.getWorld(), location.getX(), location.getY(), location.getZ()+zOffset)));
+        fencesLocations.forEach(location -> newDestinationList.add(new Location(location.getWorld(), location.getX(), location.getY(), location.getZ()+zOffset)));
         Location newSpawn = new Location(spawnPoint.getWorld(), spawnPoint.getX(), spawnPoint.getY(), spawnPoint.getZ()+zOffset);
         return new Room(newSpawn, newOriginList, newDestinationList);
     }
